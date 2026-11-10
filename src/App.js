@@ -1,25 +1,35 @@
-import logo from './logo.svg';
-import './App.css';
+import { useCallback, useState } from 'react';
+import Intro from './components/Intro/Intro';
 
-function App() {
+const KEY = 'locus-intro-seen';
+const seen = () => {
+  try {
+    return sessionStorage.getItem(KEY) === '1';
+  } catch {
+    return false;
+  }
+};
+
+export default function App() {
+  const [showIntro, setShowIntro] = useState(() => !seen());
+  const onComplete = useCallback(() => {
+    try {
+      sessionStorage.setItem(KEY, '1');
+    } catch {}
+    setShowIntro(false);
+  }, []);
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <>
+      {showIntro && <Intro onComplete={onComplete} />}
+      {/* inert: keep focus out of the page while the intro covers it */}
+      <main className="home" inert={showIntro}>
+        <h1>Locus</h1>
+        <p>Home page placeholder.</p>
+        <button type="button" className="replay" onClick={() => setShowIntro(true)}>
+          Replay intro
+        </button>
+      </main>
+    </>
   );
 }
-
-export default App;
